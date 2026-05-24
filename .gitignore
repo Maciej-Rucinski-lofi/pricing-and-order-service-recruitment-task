@@ -15,6 +15,13 @@ __pycache__/
 tools/graftcode-gateway/gg.exe
 tools/graftcode-gateway/Binaries.zip
 tools/graftcode-gateway/Binaries/
+tools/graftcode-gateway/_Hypertube*.txt
+Binaries.zip
+Binaries/
+GMA.zip
+GMA/
+GVFE.zip
+GVFE/
 
 # Generated Graft packages (installed from Vision / pip extra index)
 lib/

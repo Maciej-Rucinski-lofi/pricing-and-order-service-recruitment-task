@@ -8,11 +8,10 @@ Run the gateway from **this directory** so `Binaries.zip` and extracted runtimes
 ..\..\scripts\setup-gateway.ps1
 ```
 
-Example (after Pricing module exists in Phase 4):
+Prefer the project script (loads `.env`, sets Python PATH):
 
 ```powershell
-$env:PROJECT_KEY = "<from .env>"
-.\gg.exe --projectKey $env:PROJECT_KEY --runtime python --modules ..\..\pricing_service --port 9080 --httpPort 9081
+..\..\scripts\start-pricing-gateway.ps1
 ```
 
-Vision: `http://localhost:9081/GV`
+Vision: `http://localhost:9081/GV` — class `PricingGateway`, method `calculate_price`.

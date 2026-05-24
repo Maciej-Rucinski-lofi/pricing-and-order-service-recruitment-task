@@ -1,0 +1,24 @@
+# Base image: Python + Graftcode Gateway only (rebuild rarely).
+# Application code is bind-mounted at runtime - see scripts/start-pricing-gateway-docker.ps1
+FROM python:3.12-bookworm
+
+ARG GG_VERSION=1.2.7
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y wget ca-certificates \
+    && wget -q -O /tmp/gg.deb "https://github.com/grft-dev/graftcode-gateway/releases/download/v${GG_VERSION}/gg_linux_amd64.deb" \
+    && dpkg -i /tmp/gg.deb \
+    && rm /tmp/gg.deb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY scripts/docker-entrypoint-pricing-gateway.sh /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
+
+ENV PYTHONPATH=/app
+
+EXPOSE 9080 9081
+
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]

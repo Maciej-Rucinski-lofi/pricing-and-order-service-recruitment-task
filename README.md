@@ -10,7 +10,8 @@ Two Python services — **Pricing** and **Order** — connected via [Graftcode](
 | 1 — Project scaffold | Done — this layout |
 | 2 — Domain decisions | Done — below |
 | 3 — Pricing core | Done — `pytest tests/test_pricing.py` |
-| 4+ | See [PLAN.md](PLAN.md) |
+| 4 — Pricing Graftcode | Done — [docs/PHASE4.md](docs/PHASE4.md) |
+| 5+ | See [PLAN.md](PLAN.md) |
 
 ## Project layout
 
@@ -104,6 +105,18 @@ To add a rule: edit JSON (e.g. new `"vip": 15` under `customer_discounts`) and r
 - Pricing: typed exceptions in [`pricing_service/exceptions.py`](pricing_service/exceptions.py).
 - Order: wraps infrastructure failures in [`order_service/exceptions.py`](order_service/exceptions.py); validation errors propagate from Pricing.
 
-## Graftcode
+## Graftcode — Pricing Service (Phase 4)
 
-Gateway runs from `tools/graftcode-gateway/` (writable). Full integration steps will be added as implementation phases complete — see [PLAN.md](PLAN.md).
+```powershell
+pip install -e ".[dev]"
+.\scripts\start-pricing-gateway-docker.ps1   # rebuild only: add -Build
+# or native: .\scripts\start-pricing-gateway.ps1
+```
+
+Open **http://localhost:9081/GV** → `PricingGateway.calculate_price` → Try it out.
+
+Install the generated **Graft** from Vision (PyPI tab) for REMOTE mode later. Details: [docs/PHASE4.md](docs/PHASE4.md).
+
+```powershell
+python scripts/smoke-pricing-graft.py
+```
