@@ -48,6 +48,8 @@ flowchart LR
 
 ## Phase 0 — Prerequisites (before coding)
 
+**Status: completed** — see [docs/PHASE0.md](docs/PHASE0.md). Run `.\scripts\verify-phase0.ps1` to re-check.
+
 | Step | Action |
 |------|--------|
 | 0.1 | Confirm Python 3.11+ and a virtualenv per service or one repo-level venv |

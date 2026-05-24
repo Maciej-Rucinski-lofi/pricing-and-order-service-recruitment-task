@@ -1,1 +1,16 @@
 instructions.txt
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Secrets and local config
+.env
+
+# Graftcode Gateway (large binaries; copy via scripts/setup-gateway.ps1)
+tools/graftcode-gateway/gg.exe
+tools/graftcode-gateway/Binaries.zip
+tools/graftcode-gateway/Binaries/
