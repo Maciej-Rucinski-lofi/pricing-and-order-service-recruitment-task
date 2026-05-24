@@ -12,8 +12,8 @@ Step-by-step implementation plan for the Pricing + Order Python services from th
 - [x] **Pricing core** — Implement PricingService: catalog, configurable rules engine, Decimal models, domain exceptions
 - [x] **Pricing tests** — Add pytest: price calc, discounts (incl. 20% cap), invalid product
 - [x] **Pricing graft** — Expose Pricing via gg Gateway; verify calculate_price in Vision; install Pricing Graft
-- [ ] **Order core** — Implement OrderService + PricingClient port + LOCAL/REMOTE adapters + in-memory store + error handling
-- [ ] **Order tests** — Add pytest: order creation, pricing failure does not persist, validation cases
+- [x] **Order core** — Implement OrderService + PricingClient port + LOCAL/REMOTE adapters + in-memory store + error handling
+- [x] **Order tests** — Add pytest: order creation, pricing failure does not persist, validation cases
 - [ ] **Order graft** — Expose Order via Gateway; wire REMOTE Graft; E2E test place_order in Vision
 - [ ] **Docker & README** — Add docker-compose (optional), complete README (run, Vision, Graftcode, decisions, versioning)
 
@@ -194,6 +194,8 @@ Minimum from instructions:
 ---
 
 ## Phase 5 — Order Service (core logic)
+
+**Status: completed** — run `pytest tests/test_order.py`. See [docs/PHASE5.md](docs/PHASE5.md).
 
 ### 5.1 Pricing port abstraction (`order_service/pricing_port.py`)
 

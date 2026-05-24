@@ -11,7 +11,8 @@ Two Python services — **Pricing** and **Order** — connected via [Graftcode](
 | 2 — Domain decisions | Done — below |
 | 3 — Pricing core | Done — `pytest tests/test_pricing.py` |
 | 4 — Pricing Graftcode | Done — [docs/PHASE4.md](docs/PHASE4.md) |
-| 5+ | See [PLAN.md](PLAN.md) |
+| 5 — Order core | Done — `pytest tests/test_order.py` |
+| 6+ | See [PLAN.md](PLAN.md) |
 
 ## Project layout
 
@@ -120,3 +121,12 @@ Install the generated **Graft** from Vision (PyPI tab) for REMOTE mode later. De
 ```powershell
 python scripts/smoke-pricing-graft.py
 ```
+
+### Try orders locally
+
+```powershell
+$env:PRICING_MODE = "LOCAL"
+python -c "from order_service import build_order_service; print(build_order_service().place_order('laptop',1,'regular'))"
+```
+
+See [docs/PHASE5.md](docs/PHASE5.md) for REMOTE mode with Graft.
