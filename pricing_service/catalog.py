@@ -13,7 +13,14 @@ def load_products(path: Path | None = None) -> dict[str, Product]:
         raw = json.load(f)
     if not isinstance(raw, list):
         raise ValueError(f"Expected a JSON array in {config_path}")
-    return _parse_products(raw)
+    products = _parse_products(raw)
+    if not products:
+        raise ValueError(f"Product catalog is empty: {config_path}")
+    return products
+
+
+def get_product(products: dict[str, Product], product_id: str) -> Product | None:
+    return products.get(product_id)
 
 
 def _parse_products(raw: list[dict]) -> dict[str, Product]:

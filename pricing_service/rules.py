@@ -1,10 +1,11 @@
+import json
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 
-import yaml
+from pricing_service.exceptions import UnsupportedCustomerTypeError
 
-DEFAULT_RULES_PATH = Path(__file__).resolve().parent.parent / "config" / "pricing_rules.yaml"
+DEFAULT_RULES_PATH = Path(__file__).resolve().parent.parent / "config" / "pricing_rules.json"
 
 
 @dataclass(frozen=True)
@@ -15,10 +16,13 @@ class PricingRules:
 
 
 def load_rules(path: Path | None = None) -> PricingRules:
-    """Load discount rules from YAML config."""
+    """Load discount rules from JSON config."""
     config_path = path or DEFAULT_RULES_PATH
     with config_path.open(encoding="utf-8") as f:
-        raw = yaml.safe_load(f)
+        raw = json.load(f)
+
+    if not isinstance(raw, dict):
+        raise ValueError(f"Expected a JSON object in {config_path}")
 
     customer_discounts = {
         name: Decimal(str(percent))
@@ -40,5 +44,19 @@ def calculate_discount_percent(
     quantity: int,
     customer_type: str,
 ) -> Decimal:
-    """Compute effective discount %. Full logic completed in Phase 3."""
-    raise NotImplementedError("Discount calculation is implemented in Phase 3.")
+    """Compute effective discount % (additive, capped)."""
+    if customer_type not in rules.customer_discounts:
+        raise UnsupportedCustomerTypeError(customer_type)
+
+    customer_discount = rules.customer_discounts[customer_type]
+    quantity_discount = _quantity_discount_percent(rules, quantity)
+    combined = customer_discount + quantity_discount
+    return min(combined, rules.max_total_discount_percent)
+
+
+def _quantity_discount_percent(rules: PricingRules, quantity: int) -> Decimal:
+    applicable = Decimal("0")
+    for min_quantity, percent in rules.quantity_discounts:
+        if quantity >= min_quantity and percent > applicable:
+            applicable = percent
+    return applicable

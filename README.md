@@ -9,14 +9,15 @@ Two Python services — **Pricing** and **Order** — connected via [Graftcode](
 | 0 — Prerequisites | Done — [docs/PHASE0.md](docs/PHASE0.md) |
 | 1 — Project scaffold | Done — this layout |
 | 2 — Domain decisions | Done — below |
-| 3+ | See [PLAN.md](PLAN.md) |
+| 3 — Pricing core | Done — `pytest tests/test_pricing.py` |
+| 4+ | See [PLAN.md](PLAN.md) |
 
 ## Project layout
 
 ```
 pricing_service/   # calculate_price (Graftcode-hosted)
 order_service/     # place_order (Vision-tested)
-config/            # products.json, pricing_rules.yaml
+config/            # products.json, pricing_rules.json
 tests/
 tools/graftcode-gateway/   # local gg.exe (not in git)
 ```
@@ -35,6 +36,13 @@ Copy-Item .env.example .env   # set PROJECT_KEY from portal.graftcode.com
 
 ```powershell
 pytest
+pytest tests/test_pricing.py
+```
+
+### Try pricing locally (Python)
+
+```powershell
+python -c "from pricing_service import PricingService; p=PricingService(); r=p.calculate_price('laptop',2,'premium'); print(r)"
 ```
 
 ## Configuration
@@ -54,7 +62,7 @@ These rules are fixed before implementing pricing/order logic (Phase 3+). Consta
 ### Discount stacking
 
 - **Customer discount** and **quantity discount** percentages are **additive**, not compounded.
-- **Cap:** total discount cannot exceed **20%** (`max_total_discount_percent` in [`config/pricing_rules.yaml`](config/pricing_rules.yaml)).
+- **Cap:** total discount cannot exceed **20%** (`max_total_discount_percent` in [`config/pricing_rules.json`](config/pricing_rules.json)).
 - **Example:** `premium` (10%) + quantity ≥ 10 (5%) → **15%** off; not 14.5% compounded.
 
 ### Rounding
@@ -78,18 +86,18 @@ Validation errors originate in Pricing; Order Service must not save partial orde
 |------|----------|
 | Quantity `0` or negative | Reject — only integers **≥ 1** are valid |
 | Unknown product | Reject — product must exist in [`config/products.json`](config/products.json) |
-| Unsupported `customer_type` | Reject — must be a key in `customer_discounts` in rules YAML |
+| Unsupported `customer_type` | Reject — must be a key in `customer_discounts` in rules JSON |
 | Malformed `products.json` | Fail at startup when catalog is loaded (not per-request) |
-| Malformed `pricing_rules.yaml` | Fail at startup when rules are loaded |
+| Malformed `pricing_rules.json` | Fail at startup when rules are loaded |
 | Empty product catalog | Fail at startup |
 
 ### Configurable pricing rules
 
-Rules are **not** embedded in `calculate_price`. They live in **`config/pricing_rules.yaml`** and are loaded by [`pricing_service/rules.py`](pricing_service/rules.py).
+Rules are **not** embedded in `calculate_price`. They live in **`config/pricing_rules.json`** and are loaded by [`pricing_service/rules.py`](pricing_service/rules.py).
 
-**Why YAML:** readable diffs, easy to extend with new `customer_discounts` keys or `quantity_discounts` tiers without code changes. The engine applies customer % + best matching quantity tier %, then caps the sum.
+**Why JSON:** same structure as `products.json`, no extra dependencies, easy to extend with new `customer_discounts` keys or `quantity_discounts` tiers. The engine applies customer % + best matching quantity tier %, then caps the sum.
 
-To add a rule: edit YAML (e.g. new `vip: 15` under `customer_discounts`) and restart; no change to calculation flow structure.
+To add a rule: edit JSON (e.g. new `"vip": 15` under `customer_discounts`) and restart; no change to calculation flow structure.
 
 ### Error representation (planned)
 

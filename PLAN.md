@@ -9,8 +9,8 @@ Step-by-step implementation plan for the Pricing + Order Python services from th
 ## Implementation checklist
 
 - [x] **Scaffold** — Create project layout, pyproject/requirements, .env.example, config files (products + pricing rules)
-- [ ] **Pricing core** — Implement PricingService: catalog, configurable rules engine, Decimal models, domain exceptions
-- [ ] **Pricing tests** — Add pytest: price calc, discounts (incl. 20% cap), invalid product
+- [x] **Pricing core** — Implement PricingService: catalog, configurable rules engine, Decimal models, domain exceptions
+- [x] **Pricing tests** — Add pytest: price calc, discounts (incl. 20% cap), invalid product
 - [ ] **Pricing graft** — Expose Pricing via gg Gateway; verify calculate_price in Vision; install Pricing Graft
 - [ ] **Order core** — Implement OrderService + PricingClient port + LOCAL/REMOTE adapters + in-memory store + error handling
 - [ ] **Order tests** — Add pytest: order creation, pricing failure does not persist, validation cases
@@ -83,7 +83,7 @@ graftcode-recruitment-task/
 │   └── exceptions.py
 ├── config/
 │   ├── products.json
-│   └── pricing_rules.yaml  # or .json
+│   └── pricing_rules.json
 ├── tests/
 ├── docker-compose.yml      # bonus but recommended
 ├── pyproject.toml            # or requirements.txt
@@ -119,6 +119,8 @@ Lock these before heavy coding; interviewers care about reasoning:
 
 ## Phase 3 — Pricing Service (core logic)
 
+**Status: completed** — run `pytest tests/test_pricing.py`. See [docs/PHASE3.md](docs/PHASE3.md).
+
 ### 3.1 Models (`pricing_service/models.py`)
 
 - `Product(id, name, unit_price: Decimal)`
@@ -139,14 +141,12 @@ Lock these before heavy coding; interviewers care about reasoning:
 
 Example rule config shape:
 
-```yaml
-customer_discounts:
-  regular: 0
-  premium: 10
-quantity_discounts:
-  - min_quantity: 10
-    percent: 5
-max_total_discount_percent: 20
+```json
+{
+  "customer_discounts": { "regular": 0, "premium": 10 },
+  "quantity_discounts": [{ "min_quantity": 10, "percent": 5 }],
+  "max_total_discount_percent": 20
+}
 ```
 
 Engine steps:
