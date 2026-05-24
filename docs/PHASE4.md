@@ -14,9 +14,10 @@ Core logic remains in `PricingService`; the gateway host is a thin adapter.
 .\scripts\start-pricing-gateway-docker.ps1
 ```
 
-- Builds the image **only the first time** (or when you pass `-Build`).
-- **Mounts your repo** into the container — edit `pricing_service/` locally, then **Ctrl+C and restart** the script (no full Docker rebuild).
-- Rebuild image only after Dockerfile changes: `.\scripts\start-pricing-gateway-docker.ps1 -Build`
+- Builds the image **only the first time** (or when you pass `-Build`). The image runs `pip install` at build time (fast).
+- **Mounts your repo** for live `.py` edits — **restart** the container after changes (no `pip install` on each start).
+- First start can still take ~30s while Graftcode (`gg`) extracts runtimes; later restarts are much faster.
+- Rebuild image only after Dockerfile or `pyproject.toml` changes: `.\scripts\start-pricing-gateway-docker.ps1 -Build`
 
 ### Option B — Native `gg.exe` on Windows
 

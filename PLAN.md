@@ -14,7 +14,7 @@ Step-by-step implementation plan for the Pricing + Order Python services from th
 - [x] **Pricing graft** — Expose Pricing via gg Gateway; verify calculate_price in Vision; install Pricing Graft
 - [x] **Order core** — Implement OrderService + PricingClient port + LOCAL/REMOTE adapters + in-memory store + error handling
 - [x] **Order tests** — Add pytest: order creation, pricing failure does not persist, validation cases
-- [ ] **Order graft** — Expose Order via Gateway; wire REMOTE Graft; E2E test place_order in Vision
+- [x] **Order graft** — Expose Order via Gateway; wire REMOTE Graft; E2E test place_order in Vision
 - [ ] **Docker & README** — Add docker-compose (optional), complete README (run, Vision, Graftcode, decisions, versioning)
 
 ---
@@ -254,6 +254,8 @@ Use `logging` with `order_id`, `product_id`, mode, and error type.
 ---
 
 ## Phase 6 — Expose Order via Graftcode + Vision testing
+
+**Status: completed** — see [docs/PHASE6.md](docs/PHASE6.md). Order Vision: http://localhost:9083/GV
 
 | Step | Action |
 |------|--------|

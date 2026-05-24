@@ -1,4 +1,4 @@
-# Pricing Gateway: app installed at build time; source bind-mounted at run for fast restarts.
+# Order Gateway: app installed at build time; source bind-mounted at run for fast restarts.
 FROM python:3.12-bookworm
 
 ARG GG_VERSION=1.2.7
@@ -20,11 +20,11 @@ COPY order_service/ ./order_service/
 
 RUN pip install --no-cache-dir -e .
 
-COPY scripts/docker-entrypoint-pricing-gateway.sh /entrypoint.sh
+COPY scripts/docker-entrypoint-order-gateway.sh /entrypoint.sh
 RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 ENV PYTHONPATH=/app
 
-EXPOSE 9080 9081
+EXPOSE 9082 9083
 
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]

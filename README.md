@@ -12,7 +12,8 @@ Two Python services — **Pricing** and **Order** — connected via [Graftcode](
 | 3 — Pricing core | Done — `pytest tests/test_pricing.py` |
 | 4 — Pricing Graftcode | Done — [docs/PHASE4.md](docs/PHASE4.md) |
 | 5 — Order core | Done — `pytest tests/test_order.py` |
-| 6+ | See [PLAN.md](PLAN.md) |
+| 6 — Order Graftcode | Done — [docs/PHASE6.md](docs/PHASE6.md) |
+| 7+ | See [PLAN.md](PLAN.md) |
 
 ## Project layout
 
@@ -130,3 +131,13 @@ python -c "from order_service import build_order_service; print(build_order_serv
 ```
 
 See [docs/PHASE5.md](docs/PHASE5.md) for REMOTE mode with Graft.
+
+## Graftcode — Order Service (Phase 6)
+
+```powershell
+.\scripts\start-order-gateway-docker.ps1
+```
+
+Open **http://localhost:9083/GV** and test `OrderGateway.place_order` (e.g. `laptop`, `1`, `regular`).
+
+Run Pricing gateway on `9081` in another terminal if using `PRICING_MODE=REMOTE`. Details: [docs/PHASE6.md](docs/PHASE6.md).

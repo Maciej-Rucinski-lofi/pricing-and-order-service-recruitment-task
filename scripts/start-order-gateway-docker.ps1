@@ -1,5 +1,4 @@
 param(
-    # Force image rebuild (only needed after Dockerfile / gg version changes)
     [switch]$Build
 )
 
@@ -32,34 +31,35 @@ function Test-DockerImage {
 }
 
 if (-not (Test-DockerDaemon)) {
-    Write-Host ""
-    Write-Host "Docker is not running." -ForegroundColor Red
-    Write-Host "  Start Docker Desktop, then run: .\scripts\start-pricing-gateway-docker.ps1"
-    Write-Host ""
+    Write-Host "Docker is not running. Start Docker Desktop and retry." -ForegroundColor Red
     exit 1
 }
 
-$image = "pricing-gateway:local"
-$wsPort = if ($env:PRICING_GATEWAY_WS_PORT) { $env:PRICING_GATEWAY_WS_PORT } else { "9080" }
-$httpPort = if ($env:PRICING_GATEWAY_HTTP_PORT) { $env:PRICING_GATEWAY_HTTP_PORT } else { "9081" }
+$image = "order-gateway:local"
+$wsPort = if ($env:ORDER_GATEWAY_WS_PORT) { $env:ORDER_GATEWAY_WS_PORT } else { "9082" }
+$httpPort = if ($env:ORDER_GATEWAY_HTTP_PORT) { $env:ORDER_GATEWAY_HTTP_PORT } else { "9083" }
+$pricingMode = if ($env:PRICING_MODE) { $env:PRICING_MODE } else { "LOCAL" }
 
 if ($Build -or -not (Test-DockerImage $image)) {
-    Write-Host "Building $image (one-time; use -Build to rebuild after Dockerfile changes) ..."
-    docker build -f (Join-Path $ProjectRoot "Dockerfile.pricing-gateway") -t $image $ProjectRoot
+    Write-Host "Building $image ..."
+    docker build -f (Join-Path $ProjectRoot "Dockerfile.order-gateway") -t $image $ProjectRoot
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 } else {
     Write-Host "Using existing image $image (rebuild with -Build if needed)."
 }
 
-Write-Host "Starting container with live code mount: $ProjectRoot -> /app"
-Write-Host "Vision: http://localhost:${httpPort}/GV"
-Write-Host "Python edits: restart container only (no rebuild). First start may take ~30s while gg initializes."
-Write-Host "Rebuild (-Build) after dependency or Dockerfile changes."
+Write-Host "Starting Order Gateway (PRICING_MODE=$pricingMode)"
+Write-Host "  Vision: http://localhost:${httpPort}/GV"
+Write-Host "  Try: place_order('laptop', 1, 'regular')"
+Write-Host "  Python edits: restart only. First start ~30s (gg init). Rebuild (-Build) after dependency changes."
 Write-Host ""
 
 docker run --rm -it `
     -v "${ProjectRoot}:/app" `
     -e "PROJECT_KEY=$env:PROJECT_KEY" `
-    -p "${wsPort}:9080" `
-    -p "${httpPort}:9081" `
+    -e "PRICING_MODE=$pricingMode" `
+    -e "GRAFT_CONFIG=$env:GRAFT_CONFIG" `
+    -e "GRAFT_PACKAGE_MODULE=$env:GRAFT_PACKAGE_MODULE" `
+    -p "${wsPort}:9082" `
+    -p "${httpPort}:9083" `
     $image
