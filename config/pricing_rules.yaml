@@ -1,0 +1,7 @@
+customer_discounts:
+  regular: 0
+  premium: 10
+quantity_discounts:
+  - min_quantity: 10
+    percent: 5
+max_total_discount_percent: 20

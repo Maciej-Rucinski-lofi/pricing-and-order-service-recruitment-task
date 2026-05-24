@@ -1,0 +1,29 @@
+[project]
+name = "pricing-and-order-services"
+version = "0.1.0"
+description = "Graftcode recruitment task — Pricing and Order services"
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+graft = [
+    # Install from Vision-generated index when REMOTE mode is configured (Phase 4+)
+    # "hypertube-python-sdk",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pricing_service*", "order_service*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

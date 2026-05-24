@@ -8,7 +8,7 @@ Step-by-step implementation plan for the Pricing + Order Python services from th
 
 ## Implementation checklist
 
-- [ ] **Scaffold** — Create project layout, pyproject/requirements, .env.example, config files (products + pricing rules)
+- [x] **Scaffold** — Create project layout, pyproject/requirements, .env.example, config files (products + pricing rules)
 - [ ] **Pricing core** — Implement PricingService: catalog, configurable rules engine, Decimal models, domain exceptions
 - [ ] **Pricing tests** — Add pytest: price calc, discounts (incl. 20% cap), invalid product
 - [ ] **Pricing graft** — Expose Pricing via gg Gateway; verify calculate_price in Vision; install Pricing Graft
@@ -61,6 +61,8 @@ flowchart LR
 
 ## Phase 1 — Project scaffold
 
+**Status: completed** — see [README.md](README.md). Run `pytest` to verify config loading.
+
 Create a small, reviewable layout (example — adjust names to taste):
 
 ```
@@ -98,6 +100,8 @@ graftcode-recruitment-task/
 ---
 
 ## Phase 2 — Domain decisions (document in README early)
+
+**Status: completed** — see [README.md § Domain decisions](README.md#domain-decisions) and [docs/PHASE2.md](docs/PHASE2.md).
 
 Lock these before heavy coding; interviewers care about reasoning:
 

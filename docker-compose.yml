@@ -1,0 +1,25 @@
+# Filled in during later phases (Pricing/Order gateways + Graft wiring).
+# Requires PROJECT_KEY in .env and Docker.
+
+services:
+  pricing-gateway:
+    profiles: ["graft"]
+    image: python:3.12-bookworm
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "${PRICING_GATEWAY_WS_PORT:-9080}:9080"
+      - "${PRICING_GATEWAY_HTTP_PORT:-9081}:9081"
+    command: ["echo", "Configure in Phase 7"]
+
+  order-gateway:
+    profiles: ["graft"]
+    image: python:3.12-bookworm
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "${ORDER_GATEWAY_WS_PORT:-9082}:9082"
+      - "${ORDER_GATEWAY_HTTP_PORT:-9083}:9083"
+    command: ["echo", "Configure in Phase 7"]

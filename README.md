@@ -1,0 +1,101 @@
+# Pricing & Order Services (Graftcode recruitment task)
+
+Two Python services — **Pricing** and **Order** — connected via [Graftcode](https://graftcode.com) in REMOTE mode, with LOCAL in-process mode for a modular monolith.
+
+## Status
+
+| Phase | Status |
+|-------|--------|
+| 0 — Prerequisites | Done — [docs/PHASE0.md](docs/PHASE0.md) |
+| 1 — Project scaffold | Done — this layout |
+| 2 — Domain decisions | Done — below |
+| 3+ | See [PLAN.md](PLAN.md) |
+
+## Project layout
+
+```
+pricing_service/   # calculate_price (Graftcode-hosted)
+order_service/     # place_order (Vision-tested)
+config/            # products.json, pricing_rules.yaml
+tests/
+tools/graftcode-gateway/   # local gg.exe (not in git)
+```
+
+## Setup
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+Copy-Item .env.example .env   # set PROJECT_KEY from portal.graftcode.com
+.\scripts\setup-gateway.ps1   # copy gg.exe if missing
+```
+
+## Run tests
+
+```powershell
+pytest
+```
+
+## Configuration
+
+See [.env.example](.env.example): `PROJECT_KEY`, `PRICING_MODE` (`LOCAL` \| `REMOTE`), `GRAFT_CONFIG`, gateway ports.
+
+## Domain decisions
+
+These rules are fixed before implementing pricing/order logic (Phase 3+). Constants live in [`pricing_service/constants.py`](pricing_service/constants.py).
+
+### Money
+
+- Use **`decimal.Decimal`** for unit prices, discounts, and totals inside both services.
+- Load catalog prices from JSON as strings/decimals, not binary floats.
+- Convert to `float` only at Graftcode or API boundaries if the hosted runtime requires it.
+
+### Discount stacking
+
+- **Customer discount** and **quantity discount** percentages are **additive**, not compounded.
+- **Cap:** total discount cannot exceed **20%** (`max_total_discount_percent` in [`config/pricing_rules.yaml`](config/pricing_rules.yaml)).
+- **Example:** `premium` (10%) + quantity ≥ 10 (5%) → **15%** off; not 14.5% compounded.
+
+### Rounding
+
+- `total_price` is rounded to **2 decimal places** with **`ROUND_HALF_UP`** (banker's half-up for positive money amounts).
+
+### Validation vs infrastructure errors
+
+| Situation | Type | Order Service behavior |
+|-----------|------|------------------------|
+| Unknown `product_id` | Validation (`UnknownProductError`) | Do not persist order; clear message to caller |
+| `quantity` ≤ 0 | Validation (`InvalidQuantityError`) | Do not persist order |
+| Unsupported `customer_type` | Validation (`UnsupportedCustomerTypeError`) | Do not persist order |
+| Pricing Gateway / Graft down | Infrastructure (`PricingUnavailableError`) | Do not persist order; log with context |
+
+Validation errors originate in Pricing; Order Service must not save partial orders when pricing fails.
+
+### Edge cases
+
+| Case | Decision |
+|------|----------|
+| Quantity `0` or negative | Reject — only integers **≥ 1** are valid |
+| Unknown product | Reject — product must exist in [`config/products.json`](config/products.json) |
+| Unsupported `customer_type` | Reject — must be a key in `customer_discounts` in rules YAML |
+| Malformed `products.json` | Fail at startup when catalog is loaded (not per-request) |
+| Malformed `pricing_rules.yaml` | Fail at startup when rules are loaded |
+| Empty product catalog | Fail at startup |
+
+### Configurable pricing rules
+
+Rules are **not** embedded in `calculate_price`. They live in **`config/pricing_rules.yaml`** and are loaded by [`pricing_service/rules.py`](pricing_service/rules.py).
+
+**Why YAML:** readable diffs, easy to extend with new `customer_discounts` keys or `quantity_discounts` tiers without code changes. The engine applies customer % + best matching quantity tier %, then caps the sum.
+
+To add a rule: edit YAML (e.g. new `vip: 15` under `customer_discounts`) and restart; no change to calculation flow structure.
+
+### Error representation (planned)
+
+- Pricing: typed exceptions in [`pricing_service/exceptions.py`](pricing_service/exceptions.py).
+- Order: wraps infrastructure failures in [`order_service/exceptions.py`](order_service/exceptions.py); validation errors propagate from Pricing.
+
+## Graftcode
+
+Gateway runs from `tools/graftcode-gateway/` (writable). Full integration steps will be added as implementation phases complete — see [PLAN.md](PLAN.md).
